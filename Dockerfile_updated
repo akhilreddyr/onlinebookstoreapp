@@ -1,23 +1,22 @@
-# ✅ Red Hat UBI with Java 11 preinstalled
 FROM registry.access.redhat.com/ubi8/openjdk-11
 
 # Set environment variables
-ENV JAVA_HOME /usr/lib/jvm/jre-11
-ENV CATALINA_HOME /usr/local/tomcat
-ENV PATH $CATALINA_HOME/bin:$PATH
+ENV JAVA_HOME=/usr/lib/jvm/jre-11
+ENV CATALINA_HOME=/opt/tomcat
+ENV PATH="$CATALINA_HOME/bin:$PATH"
 
-# ✅ Download and install Tomcat (no package installs needed)
-RUN curl -fsSL https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.65/bin/apache-tomcat-9.0.65.tar.gz -o /tmp/tomcat.tar.gz \
-    && mkdir -p /usr/local \
-    && tar -xzf /tmp/tomcat.tar.gz -C /usr/local/ \
-    && mv /usr/local/apache-tomcat-9.0.65 /usr/local/tomcat \
-    && rm -rf /tmp/tomcat.tar.gz /usr/local/tomcat/webapps/docs/appdev/sample
+# ✅ Install Tomcat to a user-writable directory
+RUN mkdir -p $CATALINA_HOME \
+ && curl -fsSL https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.65/bin/apache-tomcat-9.0.65.tar.gz -o /tmp/tomcat.tar.gz \
+ && tar -xzf /tmp/tomcat.tar.gz -C /opt \
+ && mv /opt/apache-tomcat-9.0.65/* $CATALINA_HOME \
+ && rm -rf /tmp/tomcat.tar.gz /opt/apache-tomcat-9.0.65 \
+ && rm -rf $CATALINA_HOME/webapps/docs/appdev/sample
 
-# ✅ Copy your WAR file to the webapps directory
+# Copy WAR file
 COPY target/*.war $CATALINA_HOME/webapps/
 
-# Expose Tomcat port
+# Expose port
 EXPOSE 8081
 
-# Start Tomcat
 CMD ["catalina.sh", "run"]
