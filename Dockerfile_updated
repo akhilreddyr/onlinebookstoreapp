@@ -1,5 +1,5 @@
 # Use the Red Hat Universal Base Image 8 Minimal
-FROM redhat/ubi8-minimal
+FROM redhat/ubi8-minimal:latest
 
 # Install required packages: OpenJDK, wget, tar, and gzip
 RUN microdnf install -y java-11-openjdk wget tar gzip && microdnf clean all
