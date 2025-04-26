@@ -1,22 +1,24 @@
+# Use Red Hat UBI OpenJDK base image (already has Java)
 FROM registry.access.redhat.com/ubi8/openjdk-11
 
-# Set environment variables
+# Set environment variables for Java and Tomcat
 ENV JAVA_HOME=/usr/lib/jvm/jre-11
-ENV CATALINA_HOME=/opt/tomcat
+ENV CATALINA_HOME=/home/tomcat
 ENV PATH="$CATALINA_HOME/bin:$PATH"
 
-# ✅ Install Tomcat to a user-writable directory
+# Install Tomcat into a non-root, user-writable directory
 RUN mkdir -p $CATALINA_HOME \
- && curl -fsSL https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.65/bin/apache-tomcat-9.0.65.tar.gz -o /tmp/tomcat.tar.gz \
- && tar -xzf /tmp/tomcat.tar.gz -C /opt \
- && mv /opt/apache-tomcat-9.0.65/* $CATALINA_HOME \
- && rm -rf /tmp/tomcat.tar.gz /opt/apache-tomcat-9.0.65 \
- && rm -rf $CATALINA_HOME/webapps/docs/appdev/sample
+    && curl -fsSL https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.65/bin/apache-tomcat-9.0.65.tar.gz -o /tmp/tomcat.tar.gz \
+    && tar -xzf /tmp/tomcat.tar.gz -C /home/tomcat \
+    && mv /home/tomcat/apache-tomcat-9.0.65/* $CATALINA_HOME \
+    && rm -rf /tmp/tomcat.tar.gz /home/tomcat/apache-tomcat-9.0.65 \
+    && rm -rf $CATALINA_HOME/webapps/docs/appdev/sample
 
-# Copy WAR file
+# Copy WAR file to Tomcat webapps folder
 COPY target/*.war $CATALINA_HOME/webapps/
 
-# Expose port
+# Expose Tomcat port
 EXPOSE 8081
 
+# Start Tomcat when container runs
 CMD ["catalina.sh", "run"]
